@@ -1,6 +1,6 @@
 # my-skills
 
-个人 Agent Skill 集中仓库。所有 skill 在此版本化、共享、跨机器同步。
+个人 Agent Skill 集中仓库。所有 skill 在此版本化与分享；安装通过 `npx skills` 完成。
 
 ## 结构
 
@@ -22,27 +22,34 @@ my-skills/
 | --- | --- |
 | `project-scaffold` | 新项目一键生成元规范文档集（AGENTS/README/DESIGN + docs/ 四份）并安装 git hook |
 
-## 安装方式（symlink）
+## 安装
 
-skill 源码在仓库，WorkBuddy 从 `~/.workbuddy/skills/` 加载。用软链衔接，避免复制产生两份副本：
+本仓库只是源码维护（版本控制 + 分享）。安装交给 [`npx skills`](https://github.com/vercel-labs/skills) CLI，它会自动发现仓库里的 skill 并链接到各 agent 的 skills 目录。
 
 ```bash
-# 先设 MY_SKILLS 为实际克隆路径（按本机情况调整）
-export MY_SKILLS="$HOME/GitSourceCode/my-skills"
+# 安装全部 skill（全局，对所有项目可用）
+npx skills@latest add skyarea/my-skills -g -y
 
-# Windows (Git Bash) / macOS / Linux 通用
-ln -s "$MY_SKILLS/<skill-name>" "$HOME/.workbuddy/skills/<skill-name>"
+# 只装某个 skill
+npx skills@latest add skyarea/my-skills --skill project-scaffold -g -y
+
+# 本地源码自测（不推远端也能试）
+npx skills@latest add . --skill project-scaffold
+
+# 其他常用
+npx skills list          # 查看已装
+npx skills check         # 检查上游更新
+npx skills update        # 拉最新版本
 ```
 
-换机器后：clone 仓库 → 为每个 skill 重建软链 → 重启 agent。
+默认用 symlink 链接到单一副本，更新一次全部生效；不支持软链的环境加 `--copy` 改为复制。CLI 会处理各 agent 的路径解析，无需手动建链。
 
 ## 新增 skill
 
-1. 用 skill-creator 在仓库目录内初始化：`init_skill.py <name> --path "$MY_SKILLS"`
-2. 删除示例文件，按 SKILL.md 规范填写 frontmatter（含 `agent_created: true`）与正文。
-3. 执行 `quick_validate.py <skill-dir>` 校验结构。
-4. 建软链到 `~/.workbuddy/skills/` 并重启 agent 验证触发。
-5. commit & push。
+1. 在仓库根目录建 `<skill-name>/` 目录，内含 `SKILL.md`（标准 frontmatter：`name` 与目录名一致）+ 可选 `scripts/`、`references/`、`assets/`。
+2. 用 `npx skills add . --skill <name>` 本地自测。
+3. `npx skills-ref validate ./<skill-name>` 校验格式。
+4. commit & push。用户即可通过 `npx skills add skyarea/my-skills` 安装。
 
 ## 通用化约定
 
