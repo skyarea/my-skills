@@ -1,7 +1,7 @@
 # my-skills · Git 与 Commit 规则
 
 > 原则写在这里，强制校验交给 `hooks/` 下可安装的脚本。
-> 本仓库采用标准 GitFlow。当前远端主干为 `master`，等价于文中的 `main`。
+> 本仓库采用标准 GitFlow，远端主干为 `main`。
 
 ## 分支模型
 
@@ -9,7 +9,7 @@
 
 | 分支 | 角色 | 允许写入方式 |
 | --- | --- | --- |
-| `main`（本仓库 = `master`） | 稳定版本，打 tag | 只接 `release/*`、`hotfix/*` 合并 |
+| `main` | 稳定版本，打 tag | 只接 `release/*`、`hotfix/*` 合并 |
 | `develop` | 集成分支，日常开发基线 | 只接 `feature/*`、`release/*`、`hotfix/*` 合并 |
 
 短期分支（合并后删除）：
@@ -78,7 +78,7 @@ bash hooks/install.sh
 | hook | 触发 | 校验内容 |
 | --- | --- | --- |
 | `commit-msg` | `git commit` | 标题符合 Conventional Commits；不合规直接拒绝 |
-| `pre-push` | `git push` | 禁止推送到 `main` / `master` / `develop`；非规范分支名告警 |
+| `pre-push` | `git push` | 禁止推送到 `main` / `develop`；非规范分支名告警 |
 
 - hook 未安装不构成豁免。服务端 branch protection 才是最终防线。
 - 首次创建 `develop`、服务端建分支等特殊场景可用 `--no-verify`，须在 PR 中说明原因。
@@ -86,7 +86,7 @@ bash hooks/install.sh
 
 ## 禁止事项
 
-- 直接向 `main` / `master` / `develop` push 或在上述分支直接 commit
+- 直接向 `main` / `develop` push 或在上述分支直接 commit
 - force push 到任何共享分支
 - 未与用户确认就提交、推送、发 PR、删除或覆盖文件
 - 绕过校验后不记录原因
