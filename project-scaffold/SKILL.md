@@ -20,6 +20,8 @@ agent_created: true
 
 ## 工作流
 
+以下命令均在本 skill 目录下执行（脚本位于 SKILL.md 同级的 `scripts/`）。
+
 ### Step 1: 确认目标与槽位
 
 确定目标项目目录。收集槽位值，优先级从高到低：
@@ -34,7 +36,7 @@ agent_created: true
 ### Step 2: 预演（推荐）
 
 ```bash
-python ~/.workbuddy/skills/project-scaffold/scripts/init.py <target> --dry-run --set PROJECT_NAME=xxx
+python scripts/init.py <target> --dry-run --set PROJECT_NAME=xxx
 ```
 
 检查解析出的槽位是否符合预期。
@@ -42,7 +44,7 @@ python ~/.workbuddy/skills/project-scaffold/scripts/init.py <target> --dry-run -
 ### Step 3: 生成
 
 ```bash
-python ~/.workbuddy/skills/project-scaffold/scripts/init.py <target> \
+python scripts/init.py <target> \
   --set TECH_STACK="React + TypeScript" --set PKG_MANAGER=pnpm
 ```
 
@@ -54,7 +56,7 @@ python ~/.workbuddy/skills/project-scaffold/scripts/init.py <target> \
 ### Step 4: 校验
 
 ```bash
-python ~/.workbuddy/skills/project-scaffold/scripts/validate.py <target>
+python scripts/validate.py <target>
 ```
 
 校验项：七份文档存在（按 spec 中的相对路径）、二级章节齐全、无残留 `{{SLOT}}`、hook 就位。退出码 0 表示通过。
