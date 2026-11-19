@@ -1,7 +1,8 @@
 ---
 name: project-scaffold
 description: 为一个新项目一次性生成标准化元规范文档集（根目录 AGENTS.md、README.md、DESIGN.md，docs/ 下 status.md、技术规范.md、开发环境.md、git规则.md）并安装 git hook，把每份文档拆成固定骨架与可变槽位，跨项目复用。当用户要求「初始化项目规范」「生成 AGENTS.md/README.md/DESIGN.md」「建立项目文档模板」「统一多项目文档结构」「写入 git/commit 规则」或新建项目需要配套规范文档时，应使用本 skill。
-agent_created: true
+metadata:
+  agent_created: true
 ---
 
 # Project Scaffold
@@ -20,7 +21,7 @@ agent_created: true
 
 ## 工作流
 
-以下命令均在本 skill 目录下执行（脚本位于 SKILL.md 同级的 `scripts/`）。
+以下命令均在本 skill 目录下执行（零依赖 Node 单文件 `scripts/scaffold.js`，需 Node，无需 npm install）。
 
 ### Step 1: 确认目标与槽位
 
@@ -29,14 +30,14 @@ agent_created: true
 1. `--set KEY=VALUE`（命令行，可重复）
 2. `--config slots.json`（JSON 文件）
 3. `--interactive`（交互逐项填写）
-4. 默认值（`scripts/render.py` 的 `DEFAULT_SLOTS`；`PROJECT_NAME` 取目录名，`UPDATED` 取当天）
+4. 默认值（`scripts/scaffold.js` 的 `DEFAULT_SLOTS`；`PROJECT_NAME` 取目录名，`UPDATED` 取当天）
 
 槽位含义与默认值见 `references/_SPEC.md` 的「槽位表」。信息不全时先用默认值生成，再让用户补，`TECH_STACK` / `COMMIT_SCOPES` / `ARCHITECTURE` 建议填。
 
 ### Step 2: 预演（推荐）
 
 ```bash
-python scripts/init.py <target> --dry-run --set PROJECT_NAME=xxx
+node scripts/scaffold.js init <target> --dry-run --set PROJECT_NAME=xxx
 ```
 
 检查解析出的槽位是否符合预期。
@@ -44,7 +45,7 @@ python scripts/init.py <target> --dry-run --set PROJECT_NAME=xxx
 ### Step 3: 生成
 
 ```bash
-python scripts/init.py <target> \
+node scripts/scaffold.js init <target> \
   --set TECH_STACK="React + TypeScript" --set PKG_MANAGER=pnpm
 ```
 
@@ -56,7 +57,7 @@ python scripts/init.py <target> \
 ### Step 4: 校验
 
 ```bash
-python scripts/validate.py <target>
+node scripts/scaffold.js validate <target>
 ```
 
 校验项：七份文档存在（按 spec 中的相对路径）、二级章节齐全、无残留 `{{SLOT}}`、hook 就位。退出码 0 表示通过。
@@ -67,17 +68,16 @@ python scripts/validate.py <target>
 
 ## 维护规范
 
-- 改结构（章节/槽位/hook 列表）→ 先改 `references/_SPEC.md` 的 `ScaffoldSpec:v1` 块，再同步 `assets/templates/` 与 `scripts/render.py` 的 `DEFAULT_SLOTS`。
+- 改结构（章节/槽位/hook 列表）→ 先改 `references/_SPEC.md` 的 `ScaffoldSpec:v1` 块，再同步 `assets/templates/` 与 `scripts/scaffold.js` 的 `DEFAULT_SLOTS`。
 - 改文案 → 只改模板，不动 spec。
 - 用户要求新增文档类型 → 在 spec 的 `docs` 加键，并在 `assets/templates/` 建同名模板。
 - 用户要求改 hook 逻辑 → 改 `assets/hooks/*.tpl`，已安装的项目需重跑生成器（`--force`）才能更新。
+- 改 `scaffold.js` 逻辑 → 已安装项目的 `.scaffold/scaffold.js` 是生成时的副本，需 `--force` 重跑才会刷新。
 
 ## Resources
 
 ### scripts/
-- `render.py`：spec 解析、槽位解析、模板渲染的公共逻辑。
-- `init.py`：生成器，含 dry-run、覆盖备份、hook 安装。
-- `validate.py`：校验器，供手动调用与 pre-commit hook 使用。
+- `scaffold.js`：零依赖 Node 单文件，含 `init`（生成 + hook 安装）与 `validate`（文档校验）两个子命令。无需 npm install。
 
 ### references/
 - `_SPEC.md`：单一真相源——三层模型、槽位表、机器可读结构块、校验规则。
@@ -88,5 +88,6 @@ python scripts/validate.py <target>
 - 模板路径与 spec 中 `docs` 的键一一对应（含 `docs/` 前缀）。
 
 ### assets/hooks/
-- `commit-msg.tpl`：conventional commits 格式校验。
-- `pre-commit.tpl`：调用 validate.py 校验文档结构。
+- `commit-msg.tpl`：conventional commits 格式校验（纯 shell，type 词表由 `COMMIT_TYPES_RE` 槽位注入）。
+- `pre-commit.tpl`：调用项目内 `.scaffold/scaffold.js` 校验文档结构（解耦 skill 安装路径，依赖 Node）。
+- `pre-push.tpl`：禁止直推 `BRANCH_MAIN` / `BRANCH_DEVELOP`，非 GitFlow 分支名告警。

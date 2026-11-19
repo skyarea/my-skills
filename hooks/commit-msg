@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Conventional Commits guard. Rejects non-conforming commit subjects.
+set -euo pipefail
+
+msg_file="${1:-}"
+subject=$(head -n 1 "$msg_file" 2>/dev/null || true)
+
+# Git-generated commits: exempt.
+case "$subject" in
+  Merge\ *|Revert\ *|fixup!*|squash!*|Initial\ commit) exit 0 ;;
+esac
+
+types='feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert'
+if ! printf '%s\n' "$subject" | grep -Eq "^(${types})(\([a-zA-Z0-9_./-]+\))?!?: .+"; then
+  cat >&2 <<'EOF'
+[commit-msg] Rejected: subject must follow Conventional Commits.
+
+  Format: <type>(<scope>): <subject>
+  Types : feat | fix | docs | style | refactor | perf | test | build | ci | chore | revert
+  Scope : optional; lowercase letters, digits, _ . / -
+  Rule  : one space after ':', imperative subject, no trailing period
+  Breaking change: use '!' before ':' and add BREAKING CHANGE: in body
+
+  Examples:
+    feat(skills): add gitflow guard hooks
+    fix(readme): correct skills layout path
+    feat(skills)!: switch to skills/ layout
+EOF
+  printf '  Got: %s\n' "$subject" >&2
+  exit 1
+fi

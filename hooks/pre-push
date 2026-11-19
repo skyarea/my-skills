@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# GitFlow guard: block direct pushes to long-lived branches; warn on odd names.
+set -euo pipefail
+
+protected=" main master develop "
+branch=$(git symbolic-ref --quiet --short HEAD 2>/dev/null || echo "HEAD")
+
+case "$branch" in
+  main|master|develop|feature/*|release/*|hotfix/*|workbuddy/*|HEAD) ;;
+  *) printf '[pre-push] WARN: branch %s is not a GitFlow name (feature/|release/|hotfix/).\n' "$branch" >&2 ;;
+esac
+
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  [ -n "$remote_ref" ] || continue
+  case "$remote_ref" in
+    refs/heads/*) ;;
+    *) continue ;;  # tags, notes, etc.
+  esac
+  target=${remote_ref#refs/heads/}
+  if printf '%s' "$protected" | grep -q " $target "; then
+    cat >&2 <<EOF
+[pre-push] Rejected: direct push to protected branch '$target'.
+
+  GitFlow: main/master + develop accept merges only.
+  Use: git checkout develop && git checkout -b feature/<name>
+       then open a PR back to develop.
+  For intentional bootstrap, use --no-verify and state why in the PR.
+EOF
+    exit 1
+  fi
+done
+
+exit 0
