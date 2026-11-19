@@ -41,8 +41,8 @@ my-skills/
 
 ## 开发流程约束（GitFlow）
 
-- 主干 `main`（本仓库当前为 `master`）、集成分支 `develop`；长期分支仅此两条。
-- 改动从 `develop` 开 `feature/<name>`；发布走 `release/*`；线上修复走 `hotfix/*`。
+- 主干 `main`、集成分支 `develop`；长期分支仅此两条。
+- 改动从 `develop` 开 `feature/<name>`；本仓库不使用 `release/*`，`develop` 经 PR 直接合入 `main`；线上修复从 `main` 开 `hotfix/*`，合回 `main` 与 `develop`。
 - 禁止直接向 `main` / `develop` push；禁止 force push。
 - commit 用 Conventional Commits：`<type>(<scope>): <subject>`。
 - 本地强制：`bash hooks/install.sh` 安装 `commit-msg` / `pre-push` 校验。hook 未安装不构成豁免。

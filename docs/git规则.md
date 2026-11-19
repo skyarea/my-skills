@@ -1,7 +1,7 @@
 # my-skills · Git 与 Commit 规则
 
 > 原则写在这里，强制校验交给 `hooks/` 下可安装的脚本。
-> 本仓库采用标准 GitFlow。当前远端主干为 `master`，等价于文中的 `main`。
+> 本仓库采用 GitFlow 简化版：不使用 `release/*`，`develop` 可经 PR 直接合入 `main`；远端主干为 `main`。
 
 ## 分支模型
 
@@ -9,16 +9,17 @@
 
 | 分支 | 角色 | 允许写入方式 |
 | --- | --- | --- |
-| `main`（本仓库 = `master`） | 稳定版本，打 tag | 只接 `release/*`、`hotfix/*` 合并 |
-| `develop` | 集成分支，日常开发基线 | 只接 `feature/*`、`release/*`、`hotfix/*` 合并 |
+| `main` | 稳定版本，打 tag | 接 `develop`、`hotfix/*` 合并 |
+| `develop` | 集成分支，日常开发基线 | 只接 `feature/*`、`hotfix/*` 合并 |
 
 短期分支（合并后删除）：
 
 | 分支 | 从哪开 | 合到哪 | 用途 |
 | --- | --- | --- | --- |
 | `feature/<name>` | `develop` | `develop` | 新 skill、改 skill、文档增量 |
-| `release/<version>` | `develop` | `main` + `develop` | 发版冻结、版本号与 changelog |
 | `hotfix/<name>` | `main` | `main` + `develop` | 线上紧急修复 |
+
+本仓库不创建 `release/*`：合并 `develop` 到 `main` 时自行打 tag，无需发版冻结分支。
 
 命名：小写字母、数字、连字符、斜杠；`<name>` 用 kebab-case，如 `feature/gitflow-guard`。
 
@@ -41,7 +42,7 @@ git rebase origin/develop
 # 4. 推送功能分支，开 PR 合回 develop
 git push -u origin feature/<name>
 
-# 5. 发版：develop -> release/x.y.z -> main + develop
+# 5. 集成完成：develop -> main（PR 合并，无需 release/*）
 # 6. 线上修复：main -> hotfix/<name> -> main + develop
 ```
 
@@ -78,7 +79,7 @@ bash hooks/install.sh
 | hook | 触发 | 校验内容 |
 | --- | --- | --- |
 | `commit-msg` | `git commit` | 标题符合 Conventional Commits；不合规直接拒绝 |
-| `pre-push` | `git push` | 禁止推送到 `main` / `master` / `develop`；非规范分支名告警 |
+| `pre-push` | `git push` | 禁止推送到 `main` / `develop`；非规范分支名告警 |
 
 - hook 未安装不构成豁免。服务端 branch protection 才是最终防线。
 - 首次创建 `develop`、服务端建分支等特殊场景可用 `--no-verify`，须在 PR 中说明原因。
@@ -86,7 +87,7 @@ bash hooks/install.sh
 
 ## 禁止事项
 
-- 直接向 `main` / `master` / `develop` push 或在上述分支直接 commit
+- 直接向 `main` / `develop` push 或在上述分支直接 commit
 - force push 到任何共享分支
 - 未与用户确认就提交、推送、发 PR、删除或覆盖文件
 - 绕过校验后不记录原因
