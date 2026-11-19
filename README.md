@@ -6,15 +6,26 @@
 
 ```
 my-skills/
-├── README.md
-└── <skill-name>/
-    ├── SKILL.md          # skill 入口：触发条件 + 工作流
-    ├── references/       # 按需加载的规范/文档
-    ├── scripts/          # 可执行脚本（确定性任务）
-    └── assets/           # 模板、hook、图片等输出资源
+├── .gitignore             # 忽略 Python 缓存 / 虚拟环境 / 生成器备份 / 编辑器文件
+├── README.md              # 人类索引：skill 清单 + 安装命令
+├── AGENTS.md              # 仓库作者规范 + GitFlow 约束（Agent 必读）
+├── docs/
+│   └── git规则.md         # 分支模型、commit 格式、校验机制
+├── hooks/                 # 可安装到本地 .git/hooks 的校验脚本
+│   ├── commit-msg
+│   ├── pre-push
+│   └── install.sh
+└── skills/                # npx skills 官方 preferred 布局
+    └── <skill-name>/      # 每个 skill 一个顶层目录
+        ├── SKILL.md       # skill 入口：frontmatter + 触发条件 + 工作流
+        ├── references/    # 按需加载的规范/文档
+        ├── scripts/       # 可执行脚本（确定性任务）
+        └── assets/        # 模板、hook、图片等输出资源
 ```
 
 每个 skill 遵循标准 Agent Skill 格式（YAML frontmatter + Markdown 正文），可被 WorkBuddy、Claude Code 等原生读取。
+
+> 不要在仓库根放 `SKILL.md`：`npx skills` 会把它当成「单 skill 仓库」而跳过整个 `skills/` 扫描。本仓库只用 `skills/<name>/SKILL.md` 一种布局。
 
 ## 现有 skill
 
@@ -46,10 +57,11 @@ npx skills update        # 拉最新版本
 
 ## 新增 skill
 
-1. 在仓库根目录建 `<skill-name>/` 目录，内含 `SKILL.md`（标准 frontmatter：`name` 与目录名一致）+ 可选 `scripts/`、`references/`、`assets/`。
+1. 在 `skills/` 下建 `<skill-name>/` 目录，内含 `SKILL.md`（标准 frontmatter：`name` 与目录名一致）+ 可选 `scripts/`、`references/`、`assets/`。
 2. 用 `npx skills add . --skill <name>` 本地自测。
-3. `npx skills-ref validate ./<skill-name>` 校验格式。
-4. commit & push。用户即可通过 `npx skills add skyarea/my-skills` 安装。
+3. `npx skills-ref validate ./skills/<name>` 校验格式。
+4. 按 [docs/git规则.md](docs/git规则.md) 走 GitFlow（从 `develop` 开 `feature/<name>` 分支，conventional commit，PR 合回 `develop`）。
+5. 合并后用户即可通过 `npx skills add skyarea/my-skills` 安装。
 
 ## 通用化约定
 

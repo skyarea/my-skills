@@ -9,7 +9,7 @@
 | --- | --- | --- | --- |
 | L1 共享层 | 本 spec + 七份模板 + 共享指令 | 用户级 skill | 一次维护，跨项目复用 |
 | L2 项目实例层 | 生成的七份文档 | 项目根目录 + `docs/` | 每项目填一次槽位 |
-| L3 校验层 | commit-msg / pre-commit hook | 项目 `.git/hooks/` | 自动生成，强制生效 |
+| L3 校验层 | commit-msg / pre-commit / pre-push hook | 项目 `.git/hooks/` | 自动生成，强制生效 |
 
 ## 文档布局
 
@@ -31,8 +31,10 @@
 | `BUILD_CMD` | 构建命令 | `pnpm build` | 否 |
 | `TEST_CMD` | 测试命令 | `pnpm test` | 否 |
 | `LINT_CMD` | lint 命令 | `pnpm lint` | 否 |
-| `BRANCH_MAIN` | 主分支名 | `main` | 否 |
-| `COMMIT_TYPES` | commit type 词表 | feat/fix/docs/... | 否 |
+| `BRANCH_MAIN` | 主分支名（稳定版，打 tag） | `main` | 否 |
+| `BRANCH_DEVELOP` | 集成分支名（日常开发基线） | `develop` | 否 |
+| `COMMIT_TYPES` | commit type 词表（展示用） | feat/fix/docs/... | 否 |
+| `COMMIT_TYPES_RE` | commit type 正则词表（hook 用） | 由 `COMMIT_TYPES` 自动派生 | 自动 |
 | `COMMIT_SCOPES` | commit scope 词表 | `待填` | 建议填 |
 | `PHASE` | 当前阶段 | `需求` | 否 |
 | `ARCHITECTURE` | 一句话架构 | `待填` | 建议填 |
@@ -52,7 +54,7 @@
     "docs/git规则.md": ["分支策略", "Commit 格式", "Scope 词表", "强制校验"]
   },
   "required_slots": ["PROJECT_NAME"],
-  "hooks": ["commit-msg", "pre-commit"]
+  "hooks": ["commit-msg", "pre-commit", "pre-push"]
 }
 -->
 
@@ -61,7 +63,7 @@
 1. 七份文档必须存在（路径见结构块）。
 2. 每份文档必须包含上表列出的全部 `##` 二级章节，标题文字精确匹配。
 3. 文档中不得残留 `{{SLOT}}` 形式的未填槽位。
-4. Git 仓库中 `commit-msg` 与 `pre-commit` hook 必须存在。
+4. Git 仓库中 `commit-msg`、`pre-commit`、`pre-push` hook 必须存在。
 5. 确定性约束交给 hook；指令只写原则，不冒充强制手段。
 
 ## 设计原则

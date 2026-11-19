@@ -1,3 +1,5 @@
 # Shell hooks must keep LF or they break on git bash / Unix
 *.tpl text eol=lf
 *.sh text eol=lf
+hooks/commit-msg text eol=lf
+hooks/pre-push text eol=lf
